@@ -1,6 +1,6 @@
 {
   "name": "drupal/commerce_sberbank_acquiring",
-  "type": "module",
+  "type": "drupal-module",
   "description": "Provides payment gateway for Sberbank Acquiring.",
   "keywords": [
     "Drupal",
@@ -18,7 +18,7 @@
     },
     {
       "name": "Contributors",
-      "homepage": "@todo path",
+      "homepage": "https://www.drupal.org/node/2971999/committers",
       "role": "Contributors"
     }
   ],
