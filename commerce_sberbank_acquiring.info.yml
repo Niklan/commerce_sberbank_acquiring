@@ -1,0 +1,9 @@
+name: 'Sberbank Acquiring'
+type: module
+description: 'Provides payment gateway for Sberbank Acquiring.'
+package: Commerce
+core: 8.x
+version: 1.x-dev
+dependencies:
+  - commerce:commerce
+  - commerce:commerce_payment
