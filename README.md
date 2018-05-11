@@ -13,10 +13,6 @@ Integration [Sberbank Acquiring](http://data.sberbank.ru/en/s_m_business/banking
 5. Select payment mode, enter username and password for selected mode. They are different for test and live REST API's.
 6. Save it.
 
-## TODO
-
-- [ ] Generate order cart for sberbank.
-
 ## Credit cards for testing
 
 | Type       | Credit No.          | Expires | CVC/CVV  | 3-D Secure |

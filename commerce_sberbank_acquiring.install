@@ -6,13 +6,6 @@
  */
 
 /**
- * Implements hook_uninstall().
- */
-function commerce_sberbank_acquiring_uninstall() {
-  \Drupal::state()->delete('sberbank_acquiring_password');
-}
-
-/**
  * Implements hook_requirements().
  */
 function commerce_sberbank_acquiring_requirements($phase) {

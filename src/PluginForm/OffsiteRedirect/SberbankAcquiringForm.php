@@ -5,14 +5,12 @@ namespace Drupal\commerce_sberbank_acquiring\PluginForm\OffsiteRedirect;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
-use Voronkovich\SberbankAcquiring\Client;
 use Voronkovich\SberbankAcquiring\Exception\ActionException;
-use Voronkovich\SberbankAcquiring\HttpClient\GuzzleAdapter;
+use Voronkovich\SberbankAcquiring\Client as SberbankClient;
+use Voronkovich\SberbankAcquiring\HttpClient\GuzzleAdapter as SberbankGuzzleAdapter;
 
 /**
- * Class SberbankAcquiringForm
- *
- * @package Drupal\commerce_payment_example\PluginForm\OffsiteRedirect
+ * Order registration and redirection to payment URL.
  */
 class SberbankAcquiringForm extends BasePaymentOffsiteForm {
 
@@ -39,45 +37,47 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
     switch ($this->plugin->getMode()) {
       default:
       case 'test':
-        $api_uri = Client::API_URI_TEST;
+        $api_uri = SberbankClient::API_URI_TEST;
         break;
 
       case 'live':
-        $api_uri = Client::API_URI;
+        $api_uri = SberbankClient::API_URI;
         break;
     }
 
     // Prepare client to be executed.
-    $client = new Client([
+    $client = new SberbankClient([
       'userName' => $username,
       'password' => $password,
       'language' => \Drupal::languageManager()->getCurrentLanguage()->getId(),
       // ISO 4217 currency code.
       'currency' => $currency->getNumericCode(),
       'apiUri' => $api_uri,
-      'httpClient' => new GuzzleAdapter(\Drupal::httpClient()),
+      'httpClient' => new SberbankGuzzleAdapter(\Drupal::httpClient()),
     ]);
 
     // Sett additional params to order.
     $order_id = $payment->getOrderId();
     $order_amount = (int) ($payment->getAmount()->getNumber() * 100);
+
     $params = [
       'failUrl' => $form['#cancel_url'],
       'orderBundle' => [
-        'cartItems' => [],
+        'orderCreationDate' => $payment->getOrder()->getCreatedTime(),
       ],
     ];
+
+    $context = [
+      'payment' => $payment,
+    ];
+    \Drupal::moduleHandler()->alter('commerce_sberbank_acquiring_register_order', $params, $context);
 
     // Execute request to Sberbank.
     try {
       $result = $client->registerOrder($order_id, $order_amount, $form['#return_url'], $params);
     } catch (ActionException $exception) {
       // If something goes wrong, we stop payment and show error for it.
-      throw new PaymentGatewayException(t("Payment initialization finished with error. Contact site administrator. Error code: @code, message: @message", [
-        '@code' => $exception->getCode(),
-        '@message' => $exception->getMessage(),
-      ]));
-      return $form;
+      throw new PaymentGatewayException();
     }
     $payment_form_url = $result['formUrl'];
     return $this->buildRedirectForm($form, $form_state, $payment_form_url, [], self::REDIRECT_POST);
