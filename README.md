@@ -24,4 +24,7 @@ Integration [Sberbank Acquiring](http://data.sberbank.ru/en/s_m_business/banking
 ## Other info
 
 - [REST API](https://web.rbsdev.com/dokuwiki/doku.php/integration:api:rest:start)
+- [REST API](https://developer.sberbank.ru/acquiring-api-basket)*
 - [Sberbank Acquiring official website](https://www.sberbank.ru/ru/s_m_business/bankingservice/acquiring_total) (RU)
+
+* _Sberbank has several API documentations, two of them listed above and one sent with email in PDF. They have difference, be careful if you want to modify something._

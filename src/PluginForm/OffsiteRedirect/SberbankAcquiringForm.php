@@ -62,9 +62,6 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
 
     $params = [
       'failUrl' => $form['#cancel_url'],
-      'orderBundle' => [
-        'orderCreationDate' => $payment->getOrder()->getCreatedTime(),
-      ],
     ];
 
     $context = [
@@ -75,8 +72,13 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
     // Execute request to Sberbank.
     try {
       $result = $client->registerOrder($order_id, $order_amount, $form['#return_url'], $params);
-    } catch (ActionException $exception) {
+    }
+    catch (ActionException $exception) {
       // If something goes wrong, we stop payment and show error for it.
+      \Drupal::logger('commerce_sberbank_acquiring')->error("Payment for order #@order_id is throws an error. Message: @message", [
+        '@order_id' => $order_id,
+        '@message' => $exception->getMessage(),
+      ]);
       throw new PaymentGatewayException();
     }
     $payment_form_url = $result['formUrl'];
