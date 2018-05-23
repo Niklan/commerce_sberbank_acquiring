@@ -7,3 +7,9 @@ commerce_payment.commerce_payment_gateway.plugin.sberbank_acquiring:
     password:
       type: string
       label: 'Password'
+    order_id_prefix:
+      type: string
+      label: 'Order ID prefix'
+    order_id_suffix:
+      type: string
+      label: 'Order ID suffix'

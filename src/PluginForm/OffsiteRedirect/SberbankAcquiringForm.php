@@ -57,7 +57,7 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
     ]);
 
     // Sett additional params to order.
-    $order_id = $payment->getOrderId();
+    $order_id = $configs['order_id_prefix'] . $payment->getOrderId() . $configs['order_id_suffix'];
     $order_amount = (int) ($payment->getAmount()->getNumber() * 100);
 
     $params = [
