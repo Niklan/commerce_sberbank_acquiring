@@ -82,7 +82,7 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
       throw new PaymentGatewayException();
     }
     $payment_form_url = $result['formUrl'];
-    return $this->buildRedirectForm($form, $form_state, $payment_form_url, [], self::REDIRECT_POST);
+    return $this->buildRedirectForm($form, $form_state, $payment_form_url, [], self::REDIRECT_GET);
   }
 
 }
