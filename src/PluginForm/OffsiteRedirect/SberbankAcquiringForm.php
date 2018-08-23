@@ -57,7 +57,7 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
     ]);
 
     // Sett additional params to order.
-    $order_id = $configs['order_id_prefix'] . $payment->getOrderId() . $configs['order_id_suffix'];
+    $order_id = $configs['order_id_prefix'] . $payment->id() . $configs['order_id_suffix'];
     $order_amount = (int) ($payment->getAmount()->getNumber() * 100);
 
     $params = [
@@ -76,7 +76,7 @@ class SberbankAcquiringForm extends BasePaymentOffsiteForm {
     catch (ActionException $exception) {
       // If something goes wrong, we stop payment and show error for it.
       \Drupal::logger('commerce_sberbank_acquiring')->error("Payment for order #@order_id is throws an error. Message: @message", [
-        '@order_id' => $order_id,
+        '@order_id' => $payment->getOrderId(),
         '@message' => $exception->getMessage(),
       ]);
       throw new PaymentGatewayException();
