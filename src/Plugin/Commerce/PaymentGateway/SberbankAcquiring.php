@@ -34,11 +34,11 @@ class SberbankAcquiring extends OffsitePaymentGatewayBase {
    */
   public function defaultConfiguration() {
     return [
-      'username' => '',
-      'password' => '',
-      'order_id_prefix' => '',
-      'order_id_suffix' => '',
-    ] + parent::defaultConfiguration();
+        'username' => '',
+        'password' => '',
+        'order_id_prefix' => '',
+        'order_id_suffix' => '',
+      ] + parent::defaultConfiguration();
   }
 
   /**
@@ -129,7 +129,9 @@ class SberbankAcquiring extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    // Get orderId from Sberbank.
+    /** @var \Drupal\commerce_payment\PaymentStorageInterface $payment_storage */
+    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    // Get Sberbank orderId.
     $remote_id = $request->query->get('orderId');
 
     // Set REST API url for test or live modes.
@@ -150,24 +152,24 @@ class SberbankAcquiring extends OffsitePaymentGatewayBase {
       'apiUri' => $api_uri,
       'httpClient' => new SberbankGuzzleAdapter(\Drupal::httpClient()),
     ]);
+
     $order_status = $client->getOrderStatusExtended($remote_id);
+
+    $payment = $payment_storage->loadByRemoteId($remote_id);
+
     switch ($order_status['orderStatus']) {
       case SberbankOrderStatus::DEPOSITED:
-        $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-        $payment = $payment_storage->create([
-          'state' => 'completed',
-          'amount' => $order->getTotalPrice(),
-          'payment_gateway' => $this->entityId,
-          'order_id' => $order->id(),
-          'remote_id' => $remote_id,
-          'remote_state' => $order_status['paymentAmountInfo']['paymentState'],
-        ]);
-
+        $payment->setState('completed');
+        $payment->setAmount($order->getTotalPrice());
+        $payment->setRemoteState($order_status['paymentAmountInfo']['paymentState']);
+        $payment->setCompletedTime(time());
         $payment->save();
         break;
 
       default:
       case SberbankOrderStatus::DECLINED:
+        $payment->setState('authorization_voided');
+        $payment->save();
         throw new PaymentGatewayException('Payment failed!');
     }
   }
